@@ -1,13 +1,65 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import {
+  collection,
+  addDoc,
+  onSnapshot,
+  doc,
+  query,
+  getDocs,
+  Firestore,
+} from "firebase/firestore";
+
+import { db } from "../firebase";
+
+import styles from "./page.module.css";
+
+type Note = {
+  id: string;
+  author: string;
+  text: string;
+};
 
 export default function Home() {
+  function onSubmit(event: any) {
+    console.log("event.target", event.get("name"));
+
+    const data = {
+      author: event.get("author"),
+      text: event.get("text"),
+    }
+
+    // addDoc(collection(db, "notes"), {
+    //   first: "Alan",
+    //   last: "Turing",
+    //   text: "TE AMO MESSI",
+    // })
+    //   .then()
+    //   .catch();
+    event.preventDefault();
+  }
+
+  const [notes, setNotes] = useState<Note[]>([]);
+
+  useEffect(() => {
+    const dbquery = query(collection(db, "notes"));
+    getDocs(dbquery).then((querySnapshot: any) => {
+      const notes = querySnapshot.docs.map((doc: any) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setNotes(notes as any);
+    });
+  });
+
   return (
     <main className={styles.main}>
       <div className={styles.description}>
         <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
+          Les deseamos lo mejor en su día&nbsp;
+          <code className={styles.code}>Gonza y Belén</code>
         </p>
         <div>
           <a
@@ -15,81 +67,37 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
+            By{" "}XPRODFE
           </a>
         </div>
       </div>
 
       <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
+        <form
+          onSubmit={onSubmit}
+          style={{ display: "flex", flexDirection: "column", minWidth: '240px' }}
+        >
+          <label>Mensaje</label>
+          <textarea name="text" placeholder="Mensajito" />
+          <label>Autor</label>
+          <input type="text" name="author" placeholder="Nombre y Apellido" />
+          <button>Submit</button>
+        </form>
       </div>
 
       <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+        {notes.map((note) => (
+          <div className={styles["post-it"]} key={note.id}>
+            <h1 className={styles["note-title"]}>Sticky note</h1>
+            <ul>
+              <li>
+                {note?.text ?? ''}
+              </li>
+              <li>{note.author}</li>
+            </ul>
+          </div>
+        ))}
       </div>
     </main>
-  )
+  );
 }
