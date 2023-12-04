@@ -72,8 +72,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className={styles.center}>
-        <form
+      <form
           onSubmit={onSubmit}
           style={{ display: "flex", flexDirection: "column", minWidth: '240px' }}
         >
@@ -83,6 +82,8 @@ export default function Home() {
           <input type="text" name="author" placeholder="Nombre y Apellido" />
           <button>Submit</button>
         </form>
+
+      <div className={styles.center}>
       </div>
 
       <div className={styles.grid}>
